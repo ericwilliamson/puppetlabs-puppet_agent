@@ -1,10 +1,4 @@
 class puppet_agent::osfamily::redhat {
-  if $::operatingsystem == 'Fedora' {
-    $urlbit = 'fedora/f$releasever'
-  }
-  else {
-    $urlbit = 'el/$releasever'
-  }
 
   $keyname = 'RPM-GPG-KEY-puppetlabs'
   $gpg_path = "/etc/pki/rpm-gpg/${keyname}"
@@ -31,11 +25,12 @@ class puppet_agent::osfamily::redhat {
   }
 
   yumrepo { 'pc1_repo':
-    baseurl  => "https://yum.puppetlabs.com/${urlbit}/PC1/${::architecture}",
-    descr    => "Puppet Labs PC1 Repository",
-    enabled  => true,
-    gpgcheck => '1',
-    gpgkey   => "file://$gpg_path",
+    baseurl   => $::puppet_agent::source,
+    sslverify => 'False',
+    descr     => "Puppet Labs PC1 Repository",
+    enabled   => true,
+    gpgcheck  => '1',
+    gpgkey    => "file://$gpg_path",
   }
 }
 
