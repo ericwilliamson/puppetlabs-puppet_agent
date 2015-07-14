@@ -12,9 +12,21 @@ class puppet_agent::windows::install {
     default   => $::puppet_agent::arch
   }
 
+
+  # The PE Master serves packages up over https, using a self signed certificate.
+  # MSIExec doesn't appear to have a way to download
+  if $::puppet_agent::is_pe {
+    $aio_build_version = chomp(file('/opt/puppetlabs/puppet/VERSION'))
+    $pe_server_version = pe_build_version()
+    $default_source = "https://pm.puppetlabs.com/${pe_server_version}/puppet-agent/${aio_build_version}/repos/puppet-agent-${_arch}.msi"
+  }
+  else {
+    $default_source = "https://downloads.puppetlabs.com/windows/puppet-agent-${_arch}-latest.msi"
+  }
+
   $_source = $::puppet_agent::source ? {
-    undef          => "https://downloads.puppetlabs.com/windows/puppet-agent-${_arch}-latest.msi",
-    /^[a-zA-Z]:/ => windows_native_path($::puppet_agent::source),
+    undef          => $default_source,
+    /^[a-zA-Z]:/   => windows_native_path($::puppet_agent::source),
     default        => $::puppet_agent::source,
   }
 
